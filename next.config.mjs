@@ -1,11 +1,3 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['googleapis'],
-  },
-  webpack: (config) => {
-    config.externals = [...(config.externals || []), 'sharp'];
-    return config;
-  },
-};
+const nextConfig = {};
 export default nextConfig;

@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Marcellus&family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #FAF7F2;
+  color: #1E1E1E;
+  font-family: 'Inter', sans-serif;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+.data-table th { font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; background: #f9fafb; padding: 0.75rem 1rem; text-align: left; }
+.data-table td { padding: 0.75rem 1rem; font-size: 0.875rem; color: #1f2937; border-bottom: 1px solid #f3f4f6; }
+.data-table tr:hover td { background: rgba(219,234,254,0.3); }

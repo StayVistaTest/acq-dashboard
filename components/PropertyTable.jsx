@@ -6,6 +6,7 @@ function StatusChip({status}) {
   const style=STATUS_STYLES[s]||"background:#f3f4f6;color:#4b5563";
   return <span style={{...Object.fromEntries(style.split(";").map(p=>p.split(":").map(x=>x.trim())).filter(p=>p.length===2).map(([k,v])=>[k.replace(/-([a-z])/g,(_,l)=>l.toUpperCase()),v])),display:"inline-flex",padding:"0.15rem 0.5rem",borderRadius:"9999px",fontSize:"0.75rem",fontWeight:500}}>{status||"—"}</span>;
 }
+const norm = (s) => s?.trim().toLowerCase().replace(/\s+/g," ") || "";
 export default function PropertyTable({ supplyData, revenueData, agreementData, filters }) {
   const [search, setSearch] = useState("");
   if (!supplyData) return null;
@@ -13,8 +14,14 @@ export default function PropertyTable({ supplyData, revenueData, agreementData, 
   (revenueData||[]).forEach((r)=>{revenueMap[r.id]=r;});
   const agreementMap = {};
   (agreementData||[]).forEach((a)=>{agreementMap[a.id]=a;});
-  let properties = supplyData.filter((p)=>filters.poc==="all"||p.poc===filters.poc);
-  if (search) { const q=search.toLowerCase(); properties=properties.filter((p)=>p.name.toLowerCase().includes(q)||p.city.toLowerCase().includes(q)||p.poc.toLowerCase().includes(q)); }
+  let properties = supplyData.filter((p) => {
+    if (filters.poc === "all") return true;
+    return norm(p.poc) === norm(filters.poc);
+  });
+  if (search) {
+    const q=search.toLowerCase();
+    properties=properties.filter((p)=>p.name.toLowerCase().includes(q)||p.city.toLowerCase().includes(q)||p.poc.toLowerCase().includes(q));
+  }
   return (
     <section>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1.25rem",flexWrap:"wrap",gap:"0.75rem"}}>
@@ -31,11 +38,11 @@ export default function PropertyTable({ supplyData, revenueData, agreementData, 
             <thead><tr><th>Property Name</th><th>City</th><th>POC</th><th>Status</th><th>Live Date</th><th>Agreement</th><th>Term Period</th><th>Lock-in End</th><th>Termination Penalty</th><th>Revenue (All-time)</th><th>Nights Sold</th></tr></thead>
             <tbody>
               {properties.length===0 ? <tr><td colSpan={11} style={{textAlign:"center",color:"#9ca3af",padding:"3rem"}}>No properties found</td></tr> :
-              properties.map((p)=>{
+              properties.map((p,idx)=>{
                 const rev=revenueMap[p.id]||{};
                 const agr=agreementMap[p.id]||{};
                 const cs=(agr.contractStatus||p.contractStatus||"");
-                return <tr key={p.id}>
+                return <tr key={`${p.id}-${idx}`}>
                   <td style={{fontWeight:500,color:"#1E1E1E",maxWidth:"200px",overflow:"hidden",textOverflow:"ellipsis"}}>{p.name}</td>
                   <td style={{color:"#4b5563"}}>{p.city||"—"}</td>
                   <td style={{color:"#374151"}}>{p.poc||"—"}</td>

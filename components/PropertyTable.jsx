@@ -11,10 +11,10 @@ export default function PropertyTable({ supplyData, revenueData, agreementData, 
   const [search, setSearch] = useState("");
   if (!supplyData) return null;
   const revenueMap = {};
-  (revenueData||[]).forEach((r)=>{
-    if(r.id) revenueMap[r.id.trim()]=r;
-  });
+  (revenueData||[]).forEach((r)=>{ if(r.id) revenueMap[r.id.trim()]=r; });
   let properties = supplyData.filter((p) => {
+    // Exclude Handed over properties
+    if (norm(p.status) === "handed over") return false;
     if (filters.poc === "all") return true;
     return norm(p.poc) === norm(filters.poc);
   });
@@ -48,7 +48,7 @@ export default function PropertyTable({ supplyData, revenueData, agreementData, 
               </tr>
             </thead>
             <tbody>
-              {properties.length===0 ? 
+              {properties.length===0 ?
                 <tr><td colSpan={8} style={{textAlign:"center",color:"#9ca3af",padding:"3rem"}}>No properties found</td></tr> :
                 properties.map((p,idx)=>{
                   const rev=revenueMap[p.id?.trim()]||{};
@@ -61,7 +61,7 @@ export default function PropertyTable({ supplyData, revenueData, agreementData, 
                     <td style={{color:"#4b5563"}}>{p.liveDate||"—"}</td>
                     <td><span style={{fontSize:"0.75rem",fontWeight:500,color:cs.toLowerCase()==="signed"?"#15803d":"#b45309"}}>{cs||"—"}</span></td>
                     <td style={{fontWeight:500,color:"#15803d"}}>{rev.totalRevenue?`₹${Number(rev.totalRevenue).toLocaleString("en-IN",{maximumFractionDigits:0})}`:"—"}</td>
-                    <td style={{color:"#374151"}}>{rev.totalNights!=null&&rev.totalNights!==""?rev.totalNights:"—"}</td>
+                    <td style={{color:"#374151"}}>{rev.totalNights!=null&&rev.totalNights!==0?rev.totalNights:"—"}</td>
                   </tr>;
                 })
               }

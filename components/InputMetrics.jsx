@@ -4,7 +4,7 @@ const METRIC_CONFIG = [
   {key:"leadActivation",label:"Lead Activations",color:"#9CCCFB"},
   {key:"leadGeneration",label:"Lead Generations",color:"#E9A0A7"},
   {key:"meetingsConducted",label:"Meetings Conducted",color:"#FCD4A8"},
-  {key:"callsMade",label:"Calls Made",color:"#86EFAC"},
+  
 ];
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 function getDateRanges() {

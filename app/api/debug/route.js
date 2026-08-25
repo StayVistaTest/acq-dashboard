@@ -3,17 +3,18 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const rows = await getSheetData("Supply master!A:BJ");
-    if (!rows || rows.length < 2) return NextResponse.json({ error: "no data" });
-    const headers = rows[0];
-    // Show all headers with their index
-    const headerMap = headers.map((h, i) => ({ index: i, col: String.fromCharCode(65 + (i >= 26 ? 0 : i)) + (i >= 26 ? String.fromCharCode(65 + i - 26) : ""), header: h }));
-    // Get POC values from last few columns
-    const lastCols = rows.slice(1, 5).map(r => r.slice(55, 62));
-    return NextResponse.json({ 
-      totalRows: rows.length,
-      headers: headerMap.slice(55, 62),
-      sampleRows: lastCols
-    });
+    if (!rows || rows.length < 3) return NextResponse.json({ error: "no data" });
+    const headers = rows[1].map((h) => h?.trim());
+    // Find acquisition POC column index
+    const pocIdx = headers.findIndex(h => h?.toLowerCase().includes("acquisition poc"));
+    // Show sample rows with their POC values
+    const samples = rows.slice(2, 10).map(r => ({
+      id: r[0],
+      name: r[1],
+      poc: r[pocIdx],
+      pocIdx
+    }));
+    return NextResponse.json({ pocIdx, headers: headers.slice(55, 65), samples });
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

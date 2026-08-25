@@ -1,12 +1,17 @@
 "use client";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
-const METRIC_CONFIG = [
+
+const ALL_METRICS = [
   {key:"leadActivation",label:"Lead Activations",color:"#9CCCFB"},
   {key:"leadGeneration",label:"Lead Generations",color:"#E9A0A7"},
   {key:"meetingsConducted",label:"Meetings Conducted",color:"#FCD4A8"},
-  
+  {key:"callsMade",label:"Calls Made",color:"#86EFAC"},
 ];
+
+const CHART_METRICS = ALL_METRICS.filter(m => m.key !== "callsMade");
+
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
 function getDateRanges() {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -27,6 +32,7 @@ function getDateRanges() {
     thisMonth:{start:tmStart,end:tmEnd},
   };
 }
+
 function countInRange(metricData, poc, start, end) {
   const days = poc === "all"
     ? Object.values(metricData).reduce((acc,pocDays)=>{
@@ -40,35 +46,40 @@ function countInRange(metricData, poc, start, end) {
     return sum;
   },0);
 }
+
 export default function InputMetrics({ data, filters }) {
   if (!data) return null;
   const ranges = getDateRanges();
   const activePOC = filters.poc;
   const allPOCs = new Set();
-  METRIC_CONFIG.forEach(({key})=>Object.keys(data[key]||{}).forEach(poc=>allPOCs.add(poc)));
+  ALL_METRICS.forEach(({key})=>Object.keys(data[key]||{}).forEach(poc=>allPOCs.add(poc)));
   const pocRows = activePOC==="all" ? [...allPOCs].sort() : [activePOC];
+
   const totals = {};
-  METRIC_CONFIG.forEach(({key})=>{
+  ALL_METRICS.forEach(({key})=>{
     totals[key]=countInRange(data[key]||{},activePOC,ranges.thisMonth.start,ranges.thisMonth.end);
   });
+
   const daysInMonth = new Date(filters.year,filters.month,0).getDate();
   const chartData = Array.from({length:daysInMonth},(_,i)=>{
     const day=i+1; const point={day:`${day}`};
-    METRIC_CONFIG.forEach(({key,label})=>{
+    CHART_METRICS.forEach(({key,label})=>{
       const md=data[key]||{};
       if(activePOC==="all") point[label]=Object.values(md).reduce((sum,days)=>sum+(days[day]||0),0);
       else point[label]=(md[activePOC]?.[day])||0;
     });
     return point;
   });
+
   return (
     <section>
       <h2 style={{fontFamily:"Georgia,serif",fontSize:"1.25rem",color:"#1E1E1E",marginBottom:"1.25rem"}}>
         Input Metrics <span style={{fontSize:"0.875rem",fontWeight:400,color:"#9ca3af",marginLeft:"0.75rem"}}>{activePOC==="all"?"All POCs":activePOC}</span>
       </h2>
-      {/* KPI Cards */}
+
+      {/* KPI Cards - all 4 metrics */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:"1rem",marginBottom:"1.5rem"}}>
-        {METRIC_CONFIG.map(({key,label,color})=>(
+        {ALL_METRICS.map(({key,label,color})=>(
           <div key={key} style={{background:"white",borderRadius:"1rem",border:"1px solid #f3f4f6",padding:"1.25rem",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
               <p style={{fontSize:"0.7rem",color:"#6b7280",textTransform:"uppercase",letterSpacing:"0.05em",fontWeight:600,margin:0}}>{label}</p>
@@ -79,7 +90,8 @@ export default function InputMetrics({ data, filters }) {
           </div>
         ))}
       </div>
-      {/* Daily Chart */}
+
+      {/* Daily Chart - 3 metrics only (no Calls Made) */}
       <div style={{background:"white",borderRadius:"1rem",border:"1px solid #f3f4f6",padding:"1.5rem",boxShadow:"0 1px 3px rgba(0,0,0,0.04)",marginBottom:"1.5rem"}}>
         <p style={{fontSize:"0.875rem",fontWeight:500,color:"#4b5563",marginBottom:"1rem"}}>Daily Activity — {MONTHS[filters.month-1]} {filters.year}</p>
         <ResponsiveContainer width="100%" height={260}>
@@ -89,11 +101,12 @@ export default function InputMetrics({ data, filters }) {
             <YAxis tick={{fontSize:11,fill:"#9ca3af"}} tickLine={false} axisLine={false} allowDecimals={false}/>
             <Tooltip contentStyle={{borderRadius:8,border:"none",boxShadow:"0 4px 20px rgba(0,0,0,0.08)"}} labelFormatter={(l)=>`Day ${l}`}/>
             <Legend iconType="circle" iconSize={8} wrapperStyle={{fontSize:12}}/>
-            {METRIC_CONFIG.map(({label,color})=><Bar key={label} dataKey={label} fill={color} radius={[2,2,0,0]}/>)}
+            {CHART_METRICS.map(({label,color})=><Bar key={label} dataKey={label} fill={color} radius={[2,2,0,0]}/>)}
           </BarChart>
         </ResponsiveContainer>
       </div>
-      {/* POC Summary Table */}
+
+      {/* POC Summary Table - all 4 metrics including Calls Made */}
       <div style={{background:"white",borderRadius:"1rem",border:"1px solid #f3f4f6",boxShadow:"0 1px 3px rgba(0,0,0,0.04)",overflow:"hidden"}}>
         <div style={{padding:"1rem 1.5rem",borderBottom:"1px solid #f3f4f6"}}>
           <p style={{fontSize:"0.875rem",fontWeight:500,color:"#374151",margin:0}}>POC Performance Summary</p>
@@ -112,7 +125,7 @@ export default function InputMetrics({ data, filters }) {
             </thead>
             <tbody>
               {pocRows.map((poc)=>(
-                METRIC_CONFIG.map(({key,label,color},mi)=>(
+                ALL_METRICS.map(({key,label,color},mi)=>(
                   <tr key={`${poc}-${key}`}>
                     {mi===0 && <td rowSpan={4} style={{fontWeight:600,color:"#1E1E1E",borderRight:"1px solid #f3f4f6",verticalAlign:"middle"}}>{poc}</td>}
                     <td style={{fontSize:"0.75rem"}}>

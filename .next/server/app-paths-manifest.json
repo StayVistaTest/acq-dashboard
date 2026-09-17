@@ -1,0 +1,11 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/agreement/route": "app/api/agreement/route.js",
+  "/api/debug/route": "app/api/debug/route.js",
+  "/api/input-metrics/route": "app/api/input-metrics/route.js",
+  "/api/pocs/route": "app/api/pocs/route.js",
+  "/api/revenue/route": "app/api/revenue/route.js",
+  "/api/supply-master/route": "app/api/supply-master/route.js",
+  "/page": "app/page.js"
+}
